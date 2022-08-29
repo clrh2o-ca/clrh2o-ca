@@ -1,0 +1,58 @@
+<html>
+
+  <head>
+    <title>Wellbore Visualizer</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+
+    <!-- use xlsx.mini.min.js from version 0.18.9 -->
+    <script lang="javascript" src="./xlsx.mini.min.js"></script>
+
+    <script src="./jsts.min.js"></script>
+    
+  </head>
+
+
+  <body>
+    <h3>Map Rough</h3>
+    <!--The div element for the map -->
+    <div id="map"></div>
+
+
+    <div id="sidebar">
+      <button onclick="createUrl();">Get Share Link</button>
+      <div id="risks">
+        <h4>Risk Level</h4>
+      </div>
+
+      <div id="ops">
+        <h4>Operators</h4>
+      </div>
+
+      <div id="wells">
+        <h4>Wells</h4>
+      </div>
+
+    </div>
+
+    <div id="footer">
+      Mason Antrobus 2022, not for public use.
+    </div>
+
+    <!-- 
+     The `defer` attribute causes the callback to execute after the full HTML
+     document has been parsed. For non-blocking uses, avoiding race conditions,
+     and consistent behavior across browsers, consider loading using Promises
+     with https://www.npmjs.com/package/@googlemaps/js-api-loader.
+    -->
+
+    <script src="./map.js"></script>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyALKVfAk5kdxRgNIxJYnnGXJI3Tsz5adrQ&libraries=geometry,drawing&callback=initMap&v=weekly"
+      defer
+    ></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  </body>
+
+</html>

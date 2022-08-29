@@ -1,0 +1,44 @@
+#map 
+{
+  height: 100%;
+  /* The height is 400 pixels */
+  width: 100%;
+  /* The width is the width of the web page */
+}
+
+h3, h4
+{
+  text-align: center;
+}
+
+#sidebar
+{
+  z-index: 10;
+
+  position: absolute;
+  left: 10px;
+  top: 20%;
+
+  padding: 5px;
+
+  width: auto;
+  max-height: 600px;
+
+  background-color: white;
+  overflow-y: scroll;
+}
+
+.filter
+{
+  cursor: pointer;
+}
+
+.filter:hover
+{
+  color: grey;
+}
+
+.strike
+{
+  text-decoration: line-through;
+}
