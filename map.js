@@ -359,7 +359,6 @@ function filter(target)
 
 function createUrl()
 {
-  let host = 'localhost:6969';
   let url = host + '/index.html';
   if(!(filters.size === 0))
   {
