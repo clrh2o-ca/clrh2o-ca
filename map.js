@@ -65,7 +65,7 @@ const sheetID = '72900543';
 const sheetKey = 'AIzaSyD6Ic-Sx4PUXKdUweNhjZEi7hzKGJ3QGGU';
 const clientID = '961472646552-8vvhsv52p1fd6256k3k5vdmbnt349i7s.apps.googleusercontent.com';
 const clientSecret = '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';
-const host = "clrh2o-ca.github.io";
+const host = "https://clrh2o-ca.github.io";
 
 let wells = [];
 let map;
@@ -130,7 +130,7 @@ function initMap()
       let end = {lat: Number(rows[i]['BH Latitude']), lng: Number(rows[i]['BH Longitude'])};
       path.push(end);
 
-      let icon = './icons/';
+      let icon = host + './icons/';
       switch(rows[i]['Well Symbol'])
       {
         case 'Gas':
