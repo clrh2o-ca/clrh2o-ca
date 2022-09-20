@@ -130,26 +130,26 @@ function initMap()
       let end = {lat: Number(rows[i]['BH Latitude']), lng: Number(rows[i]['BH Longitude'])};
       path.push(end);
 
-      let icon = './';
+      let icon = './icon/';
       switch(rows[i]['Well Symbol'])
       {
         case 'Gas':
-          icon += '_icon_gas';
+          icon += 'icon_gas';
           break;
         case 'Abandoned':
-          icon += '_icon_abandoned';
+          icon += 'icon_abandoned';
           break;
         case 'Oil':
-          icon += '_icon_oil';
+          icon += 'icon_oil';
           break;
         case 'Surface':
-          icon += '_icon_surface';
+          icon += 'icon_surface';
           break;
         case 'Licensed':
-          icon += '_icon_licensed';
+          icon += 'icon_licensed';
           break;
         default:
-          icon += '_icon_other';
+          icon += 'icon_other';
       }
 
       let colour = '#000000';
