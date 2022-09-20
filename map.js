@@ -130,7 +130,7 @@ function initMap()
       let end = {lat: Number(rows[i]['BH Latitude']), lng: Number(rows[i]['BH Longitude'])};
       path.push(end);
 
-      let icon = './icon/';
+      let icon = './icons/';
       switch(rows[i]['Well Symbol'])
       {
         case 'Gas':
