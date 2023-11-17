@@ -15,13 +15,15 @@
 
 
   <body>
-    <h3>Map Rough</h3>
+    <h3>Wellbore Visualizer</h3>
     <!--The div element for the map -->
     <div id="map"></div>
 
 
     <div id="sidebar">
-      <button onclick="createUrl();">Get Share Link</button>
+      <button id="toggleButton" onclick="toggleSidebar();">&lt;</button>
+      <button id="shareButton" onclick="createUrl();">Get Share Link</button>
+
       <div id="risks">
         <h4>Risk Level</h4>
       </div>

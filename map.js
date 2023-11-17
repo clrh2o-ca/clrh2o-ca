@@ -34,6 +34,7 @@ class Well
 
     console.log('drawing radius for uwid: ' + this.uwid);
     this.drawnArea = drawRadius(map, this.path, radius, factor);
+    drawnAreas.set(this.uwid, radius + ',' + factor);
   }
 
   hideWell()
@@ -56,6 +57,8 @@ class Well
     {
       this.drawnArea[i].setMap(null);
     }
+
+    drawnAreas.delete(this.uwid);
   }
 
 
@@ -65,13 +68,14 @@ const sheetID = '72900543';
 const sheetKey = 'AIzaSyD6Ic-Sx4PUXKdUweNhjZEi7hzKGJ3QGGU';
 const clientID = '961472646552-8vvhsv52p1fd6256k3k5vdmbnt349i7s.apps.googleusercontent.com';
 const clientSecret = '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';
-const host = "https://clrh2o-ca.github.io";
+const host = "https://masonantrobus.com/well";
 
 let wells = [];
 let map;
 
 const risks = new Set();
 const ops = new Set();
+const drawnAreas = new Map();
 
 //set of applied filters (always hide)
 const filters = new Set();
@@ -86,14 +90,14 @@ function initMap()
   //this section will extract data from the speadsheet
   (async() => 
   {
-    const data = await (await fetch('/data.xlsx')).arrayBuffer();
+    const data = await (await fetch(host + '/data.xlsx')).arrayBuffer();
     /* data is an ArrayBuffer */
     const workbook = XLSX.read(data);
 
     /* DO SOMETHING WITH workbook HERE */
 
     //load filters from URL
-    let tempFilter = findGetParameter('filters');
+    let tempFilter = findGetParameterJSON('filters');
     if(tempFilter === null) tempFilter = [];
 
     let rows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets.Sheet1);
@@ -130,26 +134,26 @@ function initMap()
       let end = {lat: Number(rows[i]['BH Latitude']), lng: Number(rows[i]['BH Longitude'])};
       path.push(end);
 
-      let icon = './icons/';
+      let icon = host + '/icons/';
       switch(rows[i]['Well Symbol'])
       {
         case 'Gas':
-          icon += 'icon_gas';
+          icon += '_icon_gas';
           break;
         case 'Abandoned':
-          icon += 'icon_abandoned';
+          icon += '_icon_abandoned';
           break;
         case 'Oil':
-          icon += 'icon_oil';
+          icon += '_icon_oil';
           break;
         case 'Surface':
-          icon += 'icon_surface';
+          icon += '_icon_surface';
           break;
         case 'Licensed':
-          icon += 'icon_licensed';
+          icon += '_icon_licensed';
           break;
         default:
-          icon += 'icon_other';
+          icon += '_icon_other';
       }
 
       let colour = '#000000';
@@ -246,45 +250,18 @@ function initMap()
       }
     }
 
-    //const start = {lat: 32, lng: 100};
+    //draw areas
+    let tempAreas = findGetParameter('areas');
+    if(tempAreas === null) tempAreas = '';
 
-    /*
-    const start = wells[0].start;
-    const zoom = 12;
-
-
-    map = new google.maps.Map(document.getElementById("map"), {
-      zoom: zoom,
-      center: start,
-    });
-    */
-
-
-    /*
-    // The marker, positioned at Uluru
-    const marker = new google.maps.Marker({
-      position: uluru,
-      map: map,
-    });
-    */
-
-   
-    //const paths = [];
-
-    //const well1Path = [{lat: 32, lng: 100}, {lat: 30, lng: 100.5}, {lat: 32.2, lng: 101}, {lat: 33, lng: 102}];
-    //const well1Start = {lat: 32, lng: 100};
-    //const well1End = {lat:33, lng: 102};
-
-    //const well1 = new Well('1', well1Start, well1End, well1Path, '#000000');
-    //well1.draw(map);
-
-    /*
-    for(var i = 0; i < wells.length; i++)
+    //drawing is packaged as a long string UWID-xxxxxxxxxxx,20,10| => UWID|radius,factor
+    $.each(tempAreas.split('|'), function(i, val)
     {
-      wells[i].draw(map);
-    }
+      if(val === '') return;
 
-    */
+      let a = val.split(',');
+      wells.find(e => e.uwid == a[0]).drawArea(map, Number(a[1]), Number(a[2]));
+    });
 
   })();
   
@@ -308,68 +285,51 @@ function filter(target)
   }
   else filters.add(target);
 
-  //if(type == 0)
-  //{
-    //check each well if it has the right UWID, then either hide or show depending on filter
-    for(var i = 0; i < wells.length; i++)
-    {
-      let well = wells[i];
-      if(well.uwid == target || well.risk == target || well.op == target)
-      {
-        console.log(hide);
-        (hide ? well.hideWell() : well.draw(map));
-      }
-    }
- // }
-
-  /*
-  else if(type == 1)
+  //check each well if it has the right UWID, then either hide or show depending on filter
+  for(var i = 0; i < wells.length; i++)
   {
-    //check each well if it has the right risk, then either hide or show depending on filter
-    for(var i = 0; i < wells.length; i++)
+    let well = wells[i];
+    if(well.uwid == target || well.risk == target || well.op == target)
     {
-      let well = wells[i];
-      if(well.risk == target)
-      {
-        (hide ? well.hideWell() : well.draw(map));
-      }
+      console.log(hide);
+      (hide ? well.hideWell() : well.draw(map));
     }
   }
-
-  else if(type == 2)
-  {
-    //check each well if it has the right op, then either hide or show depending on filter
-    for(var i = 0; i < wells.length; i++)
-    {
-      let well = wells[i];
-      if(well.op == target)
-      {
-        (hide ? well.hideWell() : well.draw(map));
-      }
-    }
-  }
-  
-
-  else
-  {
-    console.error('Invalid filter type');
-  }
-  */
 }
 
 function createUrl()
 {
-  let url = host + '/index.html';
+  let url = host + '/index.html?';
   if(!(filters.size === 0))
   {
     let arr = Array.from(filters);
-    url = host + '/index.html?filters=' + encodeURIComponent(JSON.stringify(arr));
+    url += '&filters=' + encodeURIComponent(JSON.stringify(arr));
+  }
+
+  if(!(drawnAreas.size === 0))
+  {
+    let areaString = ''
+    drawnAreas.forEach((val, key) => 
+    {
+      areaString += key + ',' + val + '|';
+    });
+
+    url += '&areas=' + areaString;
   } 
   
   navigator.clipboard.writeText(url);
 }
 
-function findGetParameter(parameterName) 
+function toggleSidebar()
+{
+  $('#risks').toggle();
+  $('#ops').toggle();
+  $('#wells').toggle();
+  $('#shareButton').toggle();
+  $('#risks').css('display') == 'none' ? $('#toggleButton').html('>') : $('#toggleButton').html('<');
+}
+
+function findGetParameterJSON(parameterName) 
 {
   var result = null,
       tmp = [];
@@ -383,23 +343,30 @@ function findGetParameter(parameterName)
   return result;
 }
 
+function findGetParameter(parameterName) 
+{
+  var result = null,
+      tmp = [];
+  location.search
+      .substr(1)
+      .split("&")
+      .forEach(function (item) {
+        tmp = item.split("=");
+        if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+      });
+  return result;
+}
+
 
 //FOR SOME REASON THESE DRAW FUNCTIONS CAN"T BE IN THE CLASS BECAUSE google.maps DOESN"T EXIST YET
-
-
-function drawRadius(map, path, radius, factor)
-{
-  //caps
-
-
-
-  //intersections
-}
 
 
 //https://stackoverflow.com/questions/19369363/how-to-draw-a-polygon-around-a-polyline-in-javascript?answertab=trending#tab-top
 function drawRadius(map, path, radius, factor)
 {
+  //radius is given as half length
+  radius *= 2;
+
   let radial = [];
   overviewPathGeo = [];
   
@@ -464,54 +431,6 @@ function drawRadius(map, path, radius, factor)
   });
 
   radial.push(polygone);
-  /*
-
-  //let circlePerM = radius / 10000.0;
-  let circlePerM = 0.25;
-  let radial = [];
-  for(var i = 0; i < path.length-1; i++)
-  {
-    
-    let circles = circlePerM * google.maps.geometry.spherical.computeDistanceBetween(path[i], path[i+1]);
-
-    let fill = 0.01;
-
-    if(circles < 2) fill = 0.1;
-
-    for(var j = 0; j <= circles; j++)
-    {
-      const curPoint = google.maps.geometry.spherical.interpolate(path[i], path[i+1], j/circles);
-      
-      const inner = new google.maps.Circle(
-      {
-        strokeColor: '#000000',
-        strokeOpacity: 0,
-        fillColor: '#FFA500',
-        //fillOpacity: ((i == 0 && j == 0) || (i == path.length - 2 && j == circles) ? 0.1 : 0.01),
-        fillOpacity: fill,
-        map,
-        radius: radius,
-        center: curPoint,
-      });
-      
-      const outer = new google.maps.Circle(
-      {
-        strokeColor: '#000000',
-        strokeOpacity: 0,
-        fillColor: '#FF5733',
-        //fillOpacity: ((i == 0 && j == 0) || (i == path.length - 2 && j == circles) ? 0.1 : 0.01),
-        fillOpacity: fill,
-        map,
-        radius: radius*factor,
-        center: curPoint,
-      });
-
-      radial.push(inner);
-      radial.push(outer);
-    }
-  }
-
-  */
 
   return radial;
 }
@@ -549,11 +468,13 @@ function drawEnd(map, well)
     const radBox = document.createElement('input');
     $(radBox).attr('type', 'text');
     $(radBox).attr('value', '400');
+    $(radBox).attr('placeholder', 'half-length (m)');
 
     //input box for factor
     const factor = document.createElement('input');
     $(factor).attr('type', 'text');
     $(factor).attr('value', '2');
+    $(factor).attr('placeholder', 'factor');
 
     //draw area button
     const display = document.createElement('input');
@@ -637,7 +558,7 @@ function drawStart(map, well)
     url: url, // url
     scaledSize: new google.maps.Size(20, 20), // scaled size
     origin: new google.maps.Point(0, 0), // origin
-    anchor: new google.maps.Point(10, 10) // anchor
+    anchor: new google.maps.Point(10, (well.risk == 'SUBJECT WELL' ? 20 : 10)) // anchor
   };
 
   const marker = new google.maps.Marker(
