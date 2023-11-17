@@ -68,7 +68,7 @@ const sheetID = '72900543';
 const sheetKey = 'AIzaSyD6Ic-Sx4PUXKdUweNhjZEi7hzKGJ3QGGU';
 const clientID = '961472646552-8vvhsv52p1fd6256k3k5vdmbnt349i7s.apps.googleusercontent.com';
 const clientSecret = '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';
-const host = "https://masonantrobus.com/well";
+const host = "https://clrh2o-ca.github.io";
 
 let wells = [];
 let map;
